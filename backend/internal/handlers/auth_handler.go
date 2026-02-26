@@ -102,10 +102,78 @@ func GetProfile(c *gin.Context) {
 	level := 1 + (xpPoints / 500)
 
 	c.JSON(http.StatusOK, gin.H{
-		"username":      user.Username,
-		"email":         user.Email,
-		"words_learned": wordCount,
-		"xp_points":     xpPoints,
-		"level":         level,
+		"username":            user.Username,
+		"email":               user.Email,
+		"avatar_url":          user.AvatarURL,
+		"dark_mode":           user.DarkMode,
+		"email_notifications": user.EmailNotifications,
+		"words_learned":       wordCount,
+		"xp_points":           xpPoints,
+		"level":               level,
+	})
+}
+
+// UpdateProfileRequest defines the body for updating profile details
+type UpdateProfileRequest struct {
+	Username           string `json:"username"`
+	AvatarURL          string `json:"avatar_url"`
+	DarkMode           *bool  `json:"dark_mode"`
+	EmailNotifications *bool  `json:"email_notifications"`
+}
+
+// UpdateProfile allows a user to update their username and avatar
+func UpdateProfile(c *gin.Context) {
+	userID, exists := c.Get("userID")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized user token"})
+		return
+	}
+
+	var req UpdateProfileRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	var user models.User
+	if err := database.DB.Where("id = ?", userID).First(&user).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+		return
+	}
+
+	// Update only provided fields
+	if req.Username != "" {
+		// Check if username is already taken by someone else
+		var existingUser models.User
+		if err := database.DB.Where("username = ? AND id != ?", req.Username, userID).First(&existingUser).Error; err == nil {
+			c.JSON(http.StatusConflict, gin.H{"error": "Username already taken"})
+			return
+		}
+		user.Username = req.Username
+	}
+
+	if req.AvatarURL != "" {
+		user.AvatarURL = req.AvatarURL
+	}
+
+	if req.DarkMode != nil {
+		user.DarkMode = *req.DarkMode
+	}
+
+	if req.EmailNotifications != nil {
+		user.EmailNotifications = *req.EmailNotifications
+	}
+
+	if err := database.DB.Save(&user).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update profile"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message":             "Profile updated successfully",
+		"username":            user.Username,
+		"avatar_url":          user.AvatarURL,
+		"dark_mode":           user.DarkMode,
+		"email_notifications": user.EmailNotifications,
 	})
 }

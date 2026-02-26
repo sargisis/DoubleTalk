@@ -43,6 +43,7 @@ func main() {
 		protected.Use(middleware.AuthRequired())
 		{
 			protected.GET("/user/me", handlers.GetProfile)
+			protected.PUT("/user/me", handlers.UpdateProfile)
 
 			protected.POST("/words", handlers.AddWord)
 			protected.GET("/words", handlers.GetWords)

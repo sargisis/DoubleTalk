@@ -1,9 +1,19 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
-  --background: #FCF4F4; /* Light pinkish background for main area */
+  --background: #FCF4F4;
+  /* Light pinkish background for main area */
   --foreground: #171717;
   --primary-red: #AF2024;
+}
+
+.dark {
+  --background: #0f172a;
+  /* Slate 900 */
+  --foreground: #f8fafc;
+  /* Slate 50 */
 }
 
 @theme inline {
