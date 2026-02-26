@@ -42,6 +42,8 @@ func main() {
 		protected := api.Group("/")
 		protected.Use(middleware.AuthRequired())
 		{
+			protected.GET("/user/me", handlers.GetProfile)
+
 			protected.POST("/words", handlers.AddWord)
 			protected.GET("/words", handlers.GetWords)
 			protected.DELETE("/words/:id", handlers.DeleteWord)

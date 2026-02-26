@@ -33,8 +33,12 @@ export default function Register() {
 
             // Automatically redirect to login page after successful registration
             router.push('/login');
-        } catch (err: any) {
-            setError(err.message);
+        } catch (err: unknown) {
+            if (err instanceof Error) {
+                setError(err.message);
+            } else {
+                setError('An unexpected error occurred');
+            }
         } finally {
             setLoading(false);
         }
