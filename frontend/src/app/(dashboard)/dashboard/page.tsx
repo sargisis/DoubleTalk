@@ -50,30 +50,30 @@ export default function Dashboard() {
             {/* Top Header Row */}
             <header className="flex flex-col md:flex-row md:items-start justify-between gap-6">
                 <div>
-                    <h1 className="text-3xl font-bold text-gray-900 mb-2">Witaj, {username}!</h1>
-                    <p className="text-[15px] text-gray-500 font-medium">
+                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Witaj, {username}!</h1>
+                    <p className="text-[15px] text-gray-500 dark:text-gray-400 font-medium">
                         Przed tobą pierwszy dzień nauki. Powodzenia! <span className="text-lg ml-1"></span>
                     </p>
                 </div>
-                <div className="flex items-center gap-4">
+                <div className="flex flex-wrap items-center gap-4">
                     {/* XP Block */}
-                    <div className="bg-white rounded-2xl shadow-sm px-5 py-3 flex items-center gap-4 border border-gray-50">
-                        <div className="w-10 h-10 rounded-full bg-[#FFF5E5] flex items-center justify-center">
+                    <div className="bg-white dark:bg-[#0f172a] rounded-2xl shadow-sm px-5 py-3 flex items-center gap-4 border border-gray-50 dark:border-[#1e293b]">
+                        <div className="w-10 h-10 rounded-full bg-[#FFF5E5] dark:bg-yellow-900/30 flex items-center justify-center">
                             <LightningIcon />
                         </div>
                         <div className="flex flex-col">
-                            <span className="text-[10px] font-bold text-gray-400 tracking-wider">XP POINTS</span>
-                            <span className="text-lg font-bold text-gray-900 leading-tight">{xp}</span>
+                            <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 tracking-wider">XP POINTS</span>
+                            <span className="text-lg font-bold text-gray-900 dark:text-white leading-tight">{xp}</span>
                         </div>
                     </div>
                     {/* Level Block */}
-                    <div className="bg-white rounded-2xl shadow-sm px-5 py-3 flex items-center gap-4 border border-gray-50">
-                        <div className="w-10 h-10 rounded-full bg-[#FDE8E8] flex items-center justify-center">
+                    <div className="bg-white dark:bg-[#0f172a] rounded-2xl shadow-sm px-5 py-3 flex items-center gap-4 border border-gray-50 dark:border-[#1e293b]">
+                        <div className="w-10 h-10 rounded-full bg-[#FDE8E8] dark:bg-red-900/20 flex items-center justify-center">
                             <StarOutlineIcon />
                         </div>
                         <div className="flex flex-col">
-                            <span className="text-[10px] font-bold text-gray-400 tracking-wider">LEVEL</span>
-                            <span className="text-lg font-bold text-gray-900 leading-tight">{level}</span>
+                            <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 tracking-wider">LEVEL</span>
+                            <span className="text-lg font-bold text-gray-900 dark:text-white leading-tight">{level}</span>
                         </div>
                     </div>
                 </div>
@@ -95,7 +95,7 @@ export default function Dashboard() {
                         Master the art of ordering in a restaurant. Learn vocabulary for menus, drinks, and paying the bill.
                     </p>
                     <div className="flex flex-wrap items-center gap-4">
-                        <Link href="/courses" className="bg-white text-[#AF2024] hover:bg-gray-50 transition-colors px-6 py-3.5 rounded-2xl font-bold flex items-center gap-2.5 shadow-sm text-[15px]">
+                        <Link href="/courses" className="bg-white text-[#AF2024] hover:bg-gray-50 dark:bg-white/10 dark:text-white dark:border dark:border-white/20 dark:hover:bg-white/20 transition-colors px-6 py-3.5 rounded-2xl font-bold flex items-center gap-2.5 shadow-sm text-[15px]">
                             <PlayIcon />
                             Continue learning
                         </Link>
@@ -118,38 +118,38 @@ export default function Dashboard() {
 
             {/* Stats Cards Row */}
             <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="bg-white rounded-[1.8rem] p-7 shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)] relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-[#FCF4F4]/70 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-110 duration-500"></div>
+                <div className="bg-white dark:bg-[#0f172a] rounded-[1.8rem] p-7 shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)] dark:shadow-none border border-transparent dark:border-[#1e293b] relative overflow-hidden group transition-colors">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-[#FCF4F4]/70 dark:bg-red-900/10 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-110 duration-500"></div>
                     <div className="relative z-10">
-                        <p className="text-[14px] font-medium text-gray-500 mb-1.5">Words Learned</p>
-                        <p className="text-[2rem] font-bold text-[#AF2024]">{words}</p>
+                        <p className="text-[14px] font-medium text-gray-500 dark:text-gray-400 mb-1.5">Words Learned</p>
+                        <p className="text-[2rem] font-bold text-[#AF2024] dark:text-red-400">{words}</p>
                     </div>
                 </div>
-                <div className="bg-white rounded-[1.8rem] p-7 shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)] relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-[#FFFAF0]/80 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-110 duration-500"></div>
+                <div className="bg-white dark:bg-[#0f172a] rounded-[1.8rem] p-7 shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)] dark:shadow-none border border-transparent dark:border-[#1e293b] relative overflow-hidden group transition-colors">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-[#FFFAF0]/80 dark:bg-yellow-900/10 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-110 duration-500"></div>
                     <div className="relative z-10">
-                        <p className="text-[14px] font-medium text-gray-500 mb-1.5">Hours Spent</p>
-                        <p className="text-[2rem] font-bold text-[#C7912E]">0.0</p>
+                        <p className="text-[14px] font-medium text-gray-500 dark:text-gray-400 mb-1.5">Hours Spent</p>
+                        <p className="text-[2rem] font-bold text-[#C7912E] dark:text-yellow-500">0.0</p>
                     </div>
                 </div>
-                <div className="bg-white rounded-[1.8rem] p-7 shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)] relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-[#FCF4F4]/70 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-110 duration-500"></div>
+                <div className="bg-white dark:bg-[#0f172a] rounded-[1.8rem] p-7 shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)] dark:shadow-none border border-transparent dark:border-[#1e293b] relative overflow-hidden group transition-colors">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-[#FCF4F4]/70 dark:bg-red-900/10 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-110 duration-500"></div>
                     <div className="relative z-10">
-                        <p className="text-[14px] font-medium text-gray-500 mb-1.5">Accuracy</p>
-                        <p className="text-[2rem] font-bold text-[#AF2024]">0%</p>
+                        <p className="text-[14px] font-medium text-gray-500 dark:text-gray-400 mb-1.5">Accuracy</p>
+                        <p className="text-[2rem] font-bold text-[#AF2024] dark:text-red-400">0%</p>
                     </div>
                 </div>
             </section>
 
             {/* Recent Lessons */}
-            <section className="mt-2 text-gray-900 pb-12">
+            <section className="mt-2 text-gray-900 dark:text-white pb-12">
                 <h3 className="text-[1.3rem] font-bold mb-5 ml-1">Recent Lessons</h3>
-                <div className="bg-white rounded-[1.4rem] p-8 flex flex-col items-center justify-center shadow-[0_4px_16px_-8px_rgba(0,0,0,0.03)] border border-gray-100 text-center">
-                    <div className="w-16 h-16 bg-[#FCF4F4] rounded-full flex items-center justify-center text-3xl mb-4">
+                <div className="bg-white dark:bg-[#0f172a] rounded-[1.4rem] p-8 flex flex-col items-center justify-center shadow-[0_4px_16px_-8px_rgba(0,0,0,0.03)] dark:shadow-none border border-gray-100 dark:border-[#1e293b] text-center transition-colors">
+                    <div className="w-16 h-16 bg-[#FCF4F4] dark:bg-gray-800 rounded-full flex items-center justify-center text-3xl mb-4">
                         🌱
                     </div>
                     <h4 className="font-bold text-lg mb-2">No lessons completed yet</h4>
-                    <p className="text-gray-500 font-medium">Head over to the Courses section to start learning Polish!</p>
+                    <p className="text-gray-500 dark:text-gray-400 font-medium">Head over to the Courses section to start learning Polish!</p>
                 </div>
             </section>
         </div>

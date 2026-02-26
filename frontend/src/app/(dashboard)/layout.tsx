@@ -13,35 +13,35 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     return (
         <div className="flex min-h-screen font-sans">
             {/* Sidebar */}
-            <aside className="w-[260px] bg-white border-r border-[#EEEEEE] flex flex-col justify-between hidden lg:flex sticky top-0 h-screen">
+            <aside className="w-[260px] bg-white border-r border-[#EEEEEE] dark:bg-[#0f172a] dark:border-[#1e293b] flex flex-col justify-between hidden lg:flex sticky top-0 h-screen transition-colors duration-300">
                 <div className="p-6">
                     {/* Logo */}
                     <div className="flex items-center gap-3 mb-10 pl-2">
                         <div className="w-10 h-10 rounded-[0.4rem] bg-[#AF2024] text-white font-bold flex items-center justify-center text-lg">
                             DT
                         </div>
-                        <span className="text-xl font-bold text-gray-900">Double Talk</span>
+                        <span className="text-xl font-bold text-gray-900 dark:text-white">Double Talk</span>
                     </div>
 
                     {/* Navigation */}
                     <nav className="flex flex-col gap-2">
-                        <Link href="/dashboard" className="flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-gray-50 text-gray-500 hover:text-gray-900 font-medium transition-colors">
+                        <Link href="/dashboard" className="flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-gray-50 text-gray-500 hover:text-gray-900 dark:hover:bg-[#1e293b] dark:text-gray-400 dark:hover:text-white font-medium transition-colors">
                             <HomeIcon />
                             Dashboard
                         </Link>
-                        <Link href="/courses" className="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-500 hover:bg-gray-50 hover:text-gray-900 font-medium transition-colors">
+                        <Link href="/courses" className="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-500 hover:bg-gray-50 hover:text-gray-900 dark:hover:bg-[#1e293b] dark:text-gray-400 dark:hover:text-white font-medium transition-colors">
                             <BookIcon />
                             Courses
                         </Link>
-                        <Link href="/leaderboard" className="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-500 hover:bg-gray-50 hover:text-gray-900 font-medium transition-colors">
+                        <Link href="/leaderboard" className="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-500 hover:bg-gray-50 hover:text-gray-900 dark:hover:bg-[#1e293b] dark:text-gray-400 dark:hover:text-white font-medium transition-colors">
                             <TrophyIcon />
                             Leaderboard
                         </Link>
-                        <Link href="/profile" className="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-500 hover:bg-gray-50 hover:text-gray-900 font-medium transition-colors">
+                        <Link href="/profile" className="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-500 hover:bg-gray-50 hover:text-gray-900 dark:hover:bg-[#1e293b] dark:text-gray-400 dark:hover:text-white font-medium transition-colors">
                             <UserIcon />
                             Profile
                         </Link>
-                        <Link href="/settings" className="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-500 hover:bg-gray-50 hover:text-gray-900 font-medium transition-colors">
+                        <Link href="/settings" className="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-500 hover:bg-gray-50 hover:text-gray-900 dark:hover:bg-[#1e293b] dark:text-gray-400 dark:hover:text-white font-medium transition-colors">
                             <SettingsIcon />
                             Settings
                         </Link>
@@ -49,13 +49,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 </div>
 
                 {/* Language Switcher */}
-                <div className="p-6 border-t border-[#EEEEEE]">
+                <div className="p-6 border-t border-[#EEEEEE] dark:border-[#1e293b]">
                     <span className="text-[11px] font-bold text-gray-400 mb-4 block tracking-wider uppercase">Switch Language</span>
                     <div className="flex flex-col gap-2">
-                        <div className="flex items-center justify-between p-3 rounded-xl hover:bg-gray-50 cursor-pointer transition-colors">
+                        <div className="flex items-center justify-between p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-[#1e293b] cursor-pointer transition-colors">
                             <div className="flex items-center gap-3">
                                 <span className="text-xl drop-shadow-sm">🇬🇧</span>
-                                <span className="text-[15px] font-medium text-gray-700">English</span>
+                                <span className="text-[15px] font-medium text-gray-700 dark:text-gray-300">English</span>
                             </div>
                         </div>
                         <div className="flex items-center justify-between p-3 rounded-xl bg-[#AF2024] cursor-pointer shadow-sm transition-transform hover:scale-[1.02]">

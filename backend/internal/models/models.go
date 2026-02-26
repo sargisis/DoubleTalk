@@ -5,12 +5,15 @@ import (
 )
 
 type User struct {
-	ID             uint      `json:"id" gorm:"primaryKey"`
-	Username       string    `json:"username" gorm:"unique"`
-	Email          string    `json:"email" gorm:"unique"`
-	HashedPassword string    `json:"-"`
-	CreatedAt      time.Time `json:"created_at"`
-	UpdatedAt      time.Time `json:"updated_at"`
+	ID                 uint      `json:"id" gorm:"primaryKey"`
+	Username           string    `json:"username" gorm:"unique"`
+	Email              string    `json:"email" gorm:"unique"`
+	HashedPassword     string    `json:"-"`
+	AvatarURL          string    `json:"avatar_url"`
+	DarkMode           bool      `json:"dark_mode" gorm:"default:false"`
+	EmailNotifications bool      `json:"email_notifications" gorm:"default:true"`
+	CreatedAt          time.Time `json:"created_at"`
+	UpdatedAt          time.Time `json:"updated_at"`
 }
 
 type Word struct {
