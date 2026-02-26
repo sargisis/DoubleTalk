@@ -1,4 +1,6 @@
 import React from 'react';
+import Link from 'next/link';
+import { headers } from 'next/headers';
 
 // Icons as basic SVG Components
 const HomeIcon = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>;
@@ -23,26 +25,26 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
                     {/* Navigation */}
                     <nav className="flex flex-col gap-2">
-                        <a href="/dashboard" className="flex items-center gap-4 px-4 py-3 rounded-xl bg-[#FDE8E8] text-[#AF2024] font-medium transition-colors">
+                        <Link href="/dashboard" className="flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-gray-50 text-gray-500 hover:text-gray-900 font-medium transition-colors">
                             <HomeIcon />
                             Dashboard
-                        </a>
-                        <a href="/courses" className="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-500 hover:bg-gray-50 hover:text-gray-900 font-medium transition-colors">
+                        </Link>
+                        <Link href="/courses" className="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-500 hover:bg-gray-50 hover:text-gray-900 font-medium transition-colors">
                             <BookIcon />
                             Courses
-                        </a>
-                        <a href="#" className="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-500 hover:bg-gray-50 hover:text-gray-900 font-medium transition-colors">
+                        </Link>
+                        <Link href="/leaderboard" className="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-500 hover:bg-gray-50 hover:text-gray-900 font-medium transition-colors">
                             <TrophyIcon />
                             Leaderboard
-                        </a>
-                        <a href="#" className="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-500 hover:bg-gray-50 hover:text-gray-900 font-medium transition-colors">
+                        </Link>
+                        <Link href="/profile" className="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-500 hover:bg-gray-50 hover:text-gray-900 font-medium transition-colors">
                             <UserIcon />
                             Profile
-                        </a>
-                        <a href="#" className="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-500 hover:bg-gray-50 hover:text-gray-900 font-medium transition-colors">
+                        </Link>
+                        <Link href="/settings" className="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-500 hover:bg-gray-50 hover:text-gray-900 font-medium transition-colors">
                             <SettingsIcon />
                             Settings
-                        </a>
+                        </Link>
                     </nav>
                 </div>
 

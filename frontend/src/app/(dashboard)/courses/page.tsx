@@ -163,7 +163,7 @@ export default function CoursesPage() {
                     <div className="w-20 h-20 bg-[#E8F5E9] text-green-600 rounded-full flex items-center justify-center text-4xl mx-auto mb-6">
                         🎉
                     </div>
-                    <h2 className="text-2xl font-bold text-gray-900 mb-2">You're all caught up!</h2>
+                    <h2 className="text-2xl font-bold text-gray-900 mb-2">You&apos;re all caught up!</h2>
                     <p className="text-gray-500 mb-8 font-medium">No more Polish words to review right now. Great job!</p>
 
                     <div className="max-w-[400px] mx-auto text-left bg-[#FCF4F4] p-6 rounded-[1.5rem] border border-[#AF2024]/10">

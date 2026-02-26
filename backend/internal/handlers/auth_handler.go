@@ -77,3 +77,35 @@ func Login(c *gin.Context) {
 		"token":   token,
 	})
 }
+
+func GetProfile(c *gin.Context) {
+	// The middleware places "userID" in the context
+	userID, exists := c.Get("userID")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized user token"})
+		return
+	}
+
+	var user models.User
+	if err := database.DB.Where("id = ?", userID).First(&user).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+		return
+	}
+
+	// Calculate words learned: total words added by user
+	var wordCount int64
+	database.DB.Model(&models.Word{}).Where("user_id = ?", userID).Count(&wordCount)
+
+	// Since we are mocking XP and Level right now, we can base it simplely on wordCount
+	// e.g. 50 XP per word, 1 Level per 500 XP
+	xpPoints := int(wordCount) * 50
+	level := 1 + (xpPoints / 500)
+
+	c.JSON(http.StatusOK, gin.H{
+		"username":      user.Username,
+		"email":         user.Email,
+		"words_learned": wordCount,
+		"xp_points":     xpPoints,
+		"level":         level,
+	})
+}
