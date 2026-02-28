@@ -17,8 +17,9 @@ interface UserProfile {
     level: number;
 }
 
-export default function Dashboard() {
+export default function DashboardPage() {
     const [profile, setProfile] = useState<UserProfile | null>(null);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchProfile = async () => {
@@ -35,6 +36,8 @@ export default function Dashboard() {
                 }
             } catch (err) {
                 console.error("Failed to load profile", err);
+            } finally {
+                setLoading(false);
             }
         };
         fetchProfile();
@@ -94,15 +97,11 @@ export default function Dashboard() {
                     <p className="text-white/80 text-[15px] leading-relaxed mb-8">
                         Master the art of ordering in a restaurant. Learn vocabulary for menus, drinks, and paying the bill.
                     </p>
-                    <div className="flex flex-wrap items-center gap-4">
+                    <div className="flex flex-wrap items-center gap-4 mt-6">
                         <Link href="/courses" className="bg-white text-[#AF2024] hover:bg-gray-50 dark:bg-white/10 dark:text-white dark:border dark:border-white/20 dark:hover:bg-white/20 transition-colors px-6 py-3.5 rounded-2xl font-bold flex items-center gap-2.5 shadow-sm text-[15px]">
                             <PlayIcon />
                             Continue learning
                         </Link>
-                        <button className="bg-white/10 hover:bg-white/20 transition-colors border border-white/20 text-white px-6 py-3.5 rounded-2xl font-bold flex items-center gap-2.5 backdrop-blur-sm text-[15px]">
-                            <ChatIcon />
-                            Practice Chat
-                        </button>
                     </div>
                 </div>
 
@@ -117,7 +116,7 @@ export default function Dashboard() {
             </section>
 
             {/* Stats Cards Row */}
-            <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <section className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
                 <div className="bg-white dark:bg-[#0f172a] rounded-[1.8rem] p-7 shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)] dark:shadow-none border border-transparent dark:border-[#1e293b] relative overflow-hidden group transition-colors">
                     <div className="absolute top-0 right-0 w-32 h-32 bg-[#FCF4F4]/70 dark:bg-red-900/10 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-110 duration-500"></div>
                     <div className="relative z-10">

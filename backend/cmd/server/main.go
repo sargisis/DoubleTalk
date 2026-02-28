@@ -8,10 +8,12 @@ import (
 	"doubletalk-backend/internal/middleware"
 
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
 
 func main() {
 	// Initialize Database configuration
+	_ = godotenv.Load("../../.env", ".env") // Load env variables from root or current dir
 	database.InitDB()
 
 	r := gin.Default()
@@ -51,6 +53,8 @@ func main() {
 
 			protected.GET("/cards/next", handlers.GetNextCards)
 			protected.POST("/cards/:id/review", handlers.ReviewCard)
+
+			protected.POST("/chat", handlers.ChatWithAI)
 		}
 	}
 
