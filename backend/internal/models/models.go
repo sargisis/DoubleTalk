@@ -30,3 +30,12 @@ type Word struct {
 	CreatedAt        time.Time `json:"created_at"`
 	UpdatedAt        time.Time `json:"updated_at"`
 }
+
+type LessonProgress struct {
+	ID        uint      `json:"id" gorm:"primaryKey"`
+	UserID    uint      `json:"user_id"`
+	LessonID  int       `json:"lesson_id"`
+	Status    string    `json:"status"` // "locked", "unlocked", "completed"
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}

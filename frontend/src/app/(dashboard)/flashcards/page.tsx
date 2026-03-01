@@ -2,18 +2,25 @@
 
 import React, { useState, useEffect } from 'react';
 import { getCookie } from 'cookies-next';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { playSound } from '@/lib/audio';
 
 interface Card {
-    ID: number;
+    id: number;
     text: string;           // e.g. Polish word
     translation: string;    // e.g. English translation
     language_code: string;
 }
 
 export default function CoursesPage() {
+    const router = useRouter();
+    const searchParams = useSearchParams();
+    const lessonIdParam = searchParams.get('lessonId');
+    const lessonId = lessonIdParam ? parseInt(lessonIdParam) : null;
+
     const [cards, setCards] = useState<Card[]>([]);
     const [loading, setLoading] = useState(true);
+    const [isCompleting, setIsCompleting] = useState(false);
 
     // Flashcard state
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -96,7 +103,7 @@ export default function CoursesPage() {
 
     const handleReview = async (score: number) => {
         if (!cards[currentIndex]) return;
-        const cardId = cards[currentIndex].ID;
+        const cardId = cards[currentIndex].id;
 
         // Play appropriate sound
         playSound(score >= 3 ? 'success' : 'fail');
@@ -144,6 +151,62 @@ export default function CoursesPage() {
             console.error(err);
         } finally {
             setIsAdding(false);
+        }
+    };
+
+    const handleDelete = async (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (!currentCard) return;
+        if (!confirm('Are you sure you want to delete this flashcard?')) return;
+
+        const cardId = currentCard.id;
+        try {
+            const res = await fetch(`http://localhost:8080/api/v1/words/${cardId}`, {
+                method: 'DELETE',
+                headers: getHeaders()
+            });
+            if (res.ok) {
+                // Remove from current cards
+                const newCards = cards.filter(c => c.id !== cardId);
+                setCards(newCards);
+                // Adjust index if we deleted the last card
+                if (currentIndex >= newCards.length) {
+                    setCurrentIndex(Math.max(0, newCards.length - 1));
+                }
+                setIsFlipped(false);
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    const handleCompleteLesson = async () => {
+        if (!lessonId) return;
+        setIsCompleting(true);
+        try {
+            const token = getCookie('token');
+            const res = await fetch('http://localhost:8080/api/v1/course/status', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    lesson_id: lessonId,
+                    status: 'completed'
+                })
+            });
+
+            if (res.ok) {
+                playSound('success'); // Play a nice sound for finishing the lesson
+                router.push('/courses'); // Go back to roadmap
+            } else {
+                console.error("Failed to complete lesson");
+                setIsCompleting(false);
+            }
+        } catch (err) {
+            console.error(err);
+            setIsCompleting(false);
         }
     };
 
@@ -213,6 +276,13 @@ export default function CoursesPage() {
                                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>
                                     )}
                                 </button>
+                                <button
+                                    onClick={handleDelete}
+                                    className="w-10 h-10 rounded-full flex items-center justify-center transition-colors bg-gray-100 hover:bg-red-100 dark:bg-gray-800 dark:hover:bg-red-900/40 text-gray-400 hover:text-red-500"
+                                    aria-label="Delete flashcard"
+                                >
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                </button>
                             </div>
 
                             {isFlipped ? (
@@ -251,6 +321,19 @@ export default function CoursesPage() {
                     </div>
                     <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">You&apos;re all caught up!</h2>
                     <p className="text-gray-500 dark:text-gray-400 mb-8 font-medium">No more Polish words to review right now. Great job!</p>
+
+                    {lessonId ? (
+                        <div className="max-w-[400px] mx-auto mb-8">
+                            <button
+                                onClick={handleCompleteLesson}
+                                disabled={isCompleting}
+                                className="w-full bg-[#AF2024] text-white font-bold py-4 rounded-xl hover:bg-[#99151A] dark:hover:bg-red-700 transition-colors shadow-lg hover:-translate-y-1 active:translate-y-0 disabled:opacity-70 flex items-center justify-center gap-2"
+                            >
+                                {isCompleting ? 'Completing...' : 'Complete Lesson'}
+                                {!isCompleting && <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>}
+                            </button>
+                        </div>
+                    ) : null}
 
                     <div className="max-w-[400px] mx-auto text-left bg-[#FCF4F4] dark:bg-gray-800/50 p-6 rounded-[1.5rem] border border-[#AF2024]/10 dark:border-gray-700/50">
                         <h3 className="font-bold text-gray-900 dark:text-white mb-4">Add new flashcard:</h3>

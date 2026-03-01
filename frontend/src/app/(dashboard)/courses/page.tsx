@@ -4,15 +4,15 @@ import Link from 'next/link';
 
 export default function CoursesPage() {
     // Mock data for the Roadmap
-    const roadmapUnits = [
+    const baseRoadmapUnits = [
         {
             id: 1,
             title: "Unit 1: Introductions",
             description: "Learn basic greetings and how to introduce yourself.",
             lessons: [
-                { id: 101, type: 'vocabulary', label: 'Step 1: Flashcards', title: 'Basic Greetings', desc: 'Memorize the core words for saying hello and goodbye.', status: 'completed', href: '/flashcards' },
-                { id: 102, type: 'grammar', label: 'Step 2: Theory', title: 'Verb "Być" (To Be)', desc: 'Read the foundational grammar rule for Polish sentences.', status: 'completed', href: '/grammar/102' },
-                { id: 103, type: 'homework', label: 'Step 3: Practice', title: 'Saying Hello', desc: 'Interactive exercise to build sentences.', status: 'unlocked', href: '/homework/103' },
+                { id: 101, type: 'vocabulary', label: 'Step 1: Flashcards', title: 'Basic Greetings', desc: 'Memorize the core words for saying hello and goodbye.', defaultStatus: 'unlocked', href: '/flashcards?lessonId=101' },
+                { id: 102, type: 'grammar', label: 'Step 2: Theory', title: 'Verb "Być" (To Be)', desc: 'Read the foundational grammar rule for Polish sentences.', defaultStatus: 'locked', href: '/grammar/102' },
+                { id: 103, type: 'homework', label: 'Step 3: Practice', title: 'Saying Hello', desc: 'Interactive exercise to build sentences.', defaultStatus: 'locked', href: '/homework/103' },
             ]
         },
         {
@@ -20,11 +20,76 @@ export default function CoursesPage() {
             title: "Unit 2: Essential Phrases",
             description: "Yes, No, Please, Thanks, and basic polite phrases.",
             lessons: [
-                { id: 201, type: 'vocabulary', label: 'Step 1: Flashcards', title: 'Polite Words', desc: 'Learn common polite phrases.', status: 'locked', href: '/flashcards' },
-                { id: 202, type: 'homework', label: 'Step 2: Practice', title: 'Manners Quiz', desc: 'Test your knowledge on polite phrases.', status: 'locked', href: '/homework/202' },
+                { id: 201, type: 'vocabulary', label: 'Step 1: Flashcards', title: 'Polite Words', desc: 'Learn common polite phrases.', defaultStatus: 'locked', href: '/flashcards?lessonId=201' },
+                { id: 202, type: 'homework', label: 'Step 2: Practice', title: 'Manners Quiz', desc: 'Test your knowledge on polite phrases.', defaultStatus: 'locked', href: '/homework/202' },
             ]
         }
     ];
+
+    const [roadmapUnits, setRoadmapUnits] = React.useState(baseRoadmapUnits);
+    const [loading, setLoading] = React.useState(true);
+    const { getCookie } = require('cookies-next');
+
+    React.useEffect(() => {
+        const fetchProgress = async () => {
+            const token = getCookie('token');
+            if (!token) {
+                setLoading(false);
+                return;
+            }
+
+            try {
+                const res = await fetch('http://localhost:8080/api/v1/course/progress', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (res.ok) {
+                    const progressData = await res.json();
+
+                    // Map progress to roadmap map
+                    const progressMap = new Map();
+                    progressData.forEach((p: any) => progressMap.set(p.lesson_id, p.status));
+
+                    // Update roadmap state
+                    let isPreviousLessonCompleted = true; // Always true for the very first lesson
+
+                    const updatedRoadmap = baseRoadmapUnits.map(unit => ({
+                        ...unit,
+                        lessons: unit.lessons.map(lesson => {
+                            let statusFromDB = progressMap.get(lesson.id);
+                            let finalStatus = lesson.defaultStatus;
+
+                            if (statusFromDB) {
+                                finalStatus = statusFromDB;
+                            } else if (finalStatus === 'locked' && isPreviousLessonCompleted) {
+                                finalStatus = 'unlocked';
+                            }
+
+                            isPreviousLessonCompleted = finalStatus === 'completed';
+
+                            return { ...lesson, status: finalStatus };
+                        })
+                    }));
+
+                    setRoadmapUnits(updatedRoadmap);
+                }
+            } catch (err) {
+                console.error("Failed to load progress", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchProgress();
+    }, []);
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center min-h-[60vh]">
+                <div className="w-12 h-12 border-4 border-gray-200 border-t-[#AF2024] rounded-full animate-spin"></div>
+            </div>
+        );
+    }
 
     return (
         <div className="max-w-[1000px] mx-auto flex flex-col gap-8 pb-16">
@@ -55,7 +120,7 @@ export default function CoursesPage() {
                             {/* Connecting Line behind nodes */}
                             <div className="absolute top-8 bottom-12 left-[23px] md:left-[27px] w-1 bg-gray-200 dark:bg-gray-800 -z-10 rounded-full"></div>
 
-                            {unit.lessons.map((lesson) => {
+                            {unit.lessons.map((lesson: any) => {
                                 // Determine styles based on status
                                 let nodeStyle = '';
                                 let cardStyle = '';
