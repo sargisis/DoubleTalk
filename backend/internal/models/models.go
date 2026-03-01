@@ -10,6 +10,8 @@ type User struct {
 	Email              string    `json:"email" gorm:"unique"`
 	HashedPassword     string    `json:"-"`
 	AvatarURL          string    `json:"avatar_url"`
+	Level              int       `json:"level" gorm:"default:1"`
+	XPPoints           int       `json:"xp_points" gorm:"default:0"`
 	DarkMode           bool      `json:"dark_mode" gorm:"default:false"`
 	EmailNotifications bool      `json:"email_notifications" gorm:"default:true"`
 	CreatedAt          time.Time `json:"created_at"`

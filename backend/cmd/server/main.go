@@ -55,6 +55,7 @@ func main() {
 			protected.POST("/cards/:id/review", handlers.ReviewCard)
 
 			protected.POST("/chat", handlers.ChatWithAI)
+			protected.GET("/leaderboard", handlers.GetLeaderboard)
 		}
 	}
 

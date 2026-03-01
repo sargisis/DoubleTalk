@@ -96,11 +96,7 @@ func GetProfile(c *gin.Context) {
 	var wordCount int64
 	database.DB.Model(&models.Word{}).Where("user_id = ?", userID).Count(&wordCount)
 
-	// Since we are mocking XP and Level right now, we can base it simplely on wordCount
-	// e.g. 50 XP per word, 1 Level per 500 XP
-	xpPoints := int(wordCount) * 50
-	level := 1 + (xpPoints / 500)
-
+	// Return the user's actual XP and Level from DB
 	c.JSON(http.StatusOK, gin.H{
 		"username":            user.Username,
 		"email":               user.Email,
@@ -108,9 +104,40 @@ func GetProfile(c *gin.Context) {
 		"dark_mode":           user.DarkMode,
 		"email_notifications": user.EmailNotifications,
 		"words_learned":       wordCount,
-		"xp_points":           xpPoints,
-		"level":               level,
+		"xp_points":           user.XPPoints,
+		"level":               user.Level,
 	})
+}
+
+// GetLeaderboard returns the top 20 users by XP
+func GetLeaderboard(c *gin.Context) {
+	var users []models.User
+	if err := database.DB.Order("xp_points desc").Limit(20).Find(&users).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch leaderboard"})
+		return
+	}
+
+	// Prepare data so we don't send emails/passwords
+	type LeaderboardUser struct {
+		ID        uint   `json:"id"`
+		Username  string `json:"username"`
+		AvatarURL string `json:"avatar_url"`
+		XPPoints  int    `json:"xp_points"`
+		Level     int    `json:"level"`
+	}
+
+	var results []LeaderboardUser
+	for _, u := range users {
+		results = append(results, LeaderboardUser{
+			ID:        u.ID,
+			Username:  u.Username,
+			AvatarURL: u.AvatarURL,
+			XPPoints:  u.XPPoints,
+			Level:     u.Level,
+		})
+	}
+
+	c.JSON(http.StatusOK, results)
 }
 
 // UpdateProfileRequest defines the body for updating profile details
