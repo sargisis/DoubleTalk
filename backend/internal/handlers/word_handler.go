@@ -49,6 +49,8 @@ func AddWord(c *gin.Context) {
 		return
 	}
 
+	services.AddXP(userID.(uint), 50) // Base XP for a new word
+
 	c.JSON(http.StatusCreated, word)
 }
 
@@ -128,6 +130,8 @@ func ReviewCard(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update review status"})
 		return
 	}
+
+	services.AddXP(userID.(uint), 10*req.Score) // Reward XP based on score (1-5)
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Review recorded successfully",
