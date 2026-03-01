@@ -56,6 +56,9 @@ func main() {
 
 			protected.POST("/chat", handlers.ChatWithAI)
 			protected.GET("/leaderboard", handlers.GetLeaderboard)
+
+			protected.GET("/course/progress", handlers.GetCourseProgress)
+			protected.POST("/course/status", handlers.UpdateLessonStatus)
 		}
 	}
 

@@ -22,8 +22,9 @@ const MockHomeworkData = {
     }
 };
 
-export default function HomeworkPage({ params }: { params: { id: string } }) {
-    const defaultId = parseInt(params.id) || 103;
+export default function HomeworkPage({ params }: { params: Promise<{ id: string }> }) {
+    const resolvedParams = React.use(params);
+    const defaultId = parseInt(resolvedParams.id) || 103;
     const data = MockHomeworkData[defaultId as keyof typeof MockHomeworkData] || null;
 
     const [selectedWords, setSelectedWords] = useState<string[]>([]);
@@ -74,13 +75,35 @@ export default function HomeworkPage({ params }: { params: { id: string } }) {
         setAvailableWords([...availableWords, word]);
     };
 
-    const handleCheck = () => {
+    const handleCheck = async () => {
         const currentAnswer = selectedWords.join(' ');
         const correctAnswer = data.correctOrder.join(' ');
 
         if (currentAnswer === correctAnswer) {
             setResultStatus('success');
             playSound('success');
+
+            // Send completion to backend
+            try {
+                const { getCookie } = require('cookies-next');
+                const token = getCookie('token');
+                if (token) {
+                    await fetch('http://localhost:8080/api/v1/course/status', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({
+                            lesson_id: defaultId,
+                            status: 'completed'
+                        }) // This will unlock the NEXT lesson on the roadmap and grant XP!
+                    });
+                }
+            } catch (err) {
+                console.error("Failed to update lesson status", err);
+            }
+
         } else {
             setResultStatus('fail');
             playSound('fail');

@@ -2,6 +2,9 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { getCookie } from 'cookies-next';
+import { playSound } from '@/lib/audio';
 
 // Mock data for a grammar lesson
 const grammarLesson = {
@@ -38,14 +41,46 @@ const grammarLesson = {
     ]
 };
 
-export default function GrammarPage() {
+export default function GrammarPage({ params }: { params: Promise<{ id: string }> }) {
+    const router = useRouter();
+    const resolvedParams = React.use(params);
     const [revealedIds, setRevealedIds] = useState<number[]>([]);
+    const [isCompleting, setIsCompleting] = useState(false);
 
     const toggleReveal = (index: number) => {
         if (revealedIds.includes(index)) {
             setRevealedIds(revealedIds.filter(id => id !== index));
         } else {
             setRevealedIds([...revealedIds, index]);
+        }
+    };
+
+    const handleComplete = async () => {
+        setIsCompleting(true);
+        try {
+            const token = getCookie('token');
+            const res = await fetch('http://localhost:8080/api/v1/course/status', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    lesson_id: parseInt(resolvedParams.id) || 102,
+                    status: 'completed'
+                })
+            });
+
+            if (res.ok) {
+                playSound('success');
+                router.push('/courses');
+            } else {
+                console.error("Failed to mark as complete");
+                setIsCompleting(false);
+            }
+        } catch (err) {
+            console.error(err);
+            setIsCompleting(false);
         }
     };
 
@@ -151,10 +186,14 @@ export default function GrammarPage() {
 
             {/* Next Action */}
             <div className="mt-16 flex justify-center">
-                <Link href="/dashboard" className="bg-[#AF2024] hover:bg-[#8B1417] text-white px-8 py-4 rounded-2xl font-bold text-lg shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all flex items-center gap-2">
-                    Mark as Complete
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                </Link>
+                <button
+                    onClick={handleComplete}
+                    disabled={isCompleting}
+                    className="bg-[#AF2024] hover:bg-[#8B1417] text-white px-8 py-4 rounded-2xl font-bold text-lg shadow-[0_4px_0_0_rgb(139,20,23)] hover:-translate-y-1 active:translate-y-1 active:shadow-none disabled:opacity-70 transition-all flex items-center gap-2"
+                >
+                    {isCompleting ? 'Completing...' : 'Mark as Complete'}
+                    {!isCompleting && <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>}
+                </button>
             </div>
         </div>
     );
