@@ -1,6 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { headers } from 'next/headers';
+import { TopNav } from '@/components/TopNav';
 
 // Icons as basic SVG Components
 const HomeIcon = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>;
@@ -39,11 +40,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                             <CardsIcon />
                             Words
                         </Link>
-                        {/* <Link href="/chat" className="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-500 hover:bg-gray-50 hover:text-gray-900 dark:hover:bg-[#1e293b] dark:text-gray-400 dark:hover:text-white font-medium transition-colors relative">
+                        <Link href="/practice" className="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-500 hover:bg-gray-50 hover:text-gray-900 dark:hover:bg-[#1e293b] dark:text-gray-400 dark:hover:text-white font-medium transition-colors relative">
                             <ChatIcon />
-                            AI Chat
+                            Practice
                             <span className="absolute right-4 bg-gradient-to-r from-purple-500 to-indigo-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-md uppercase tracking-wide">New</span>
-                        </Link> */}
+                        </Link>
                         <Link href="/leaderboard" className="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-500 hover:bg-gray-50 hover:text-gray-900 dark:hover:bg-[#1e293b] dark:text-gray-400 dark:hover:text-white font-medium transition-colors">
                             <TrophyIcon />
                             Leaderboard
@@ -82,6 +83,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
             {/* Main Content */}
             <main className="flex-1 p-8 lg:p-12 overflow-y-auto w-full">
+                <TopNav />
                 {children}
             </main>
         </div>

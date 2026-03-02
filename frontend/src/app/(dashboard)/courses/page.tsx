@@ -100,81 +100,100 @@ export default function CoursesPage() {
                 </p>
             </header>
 
-            {/* Top Roadmap View */}
+            {/* Modern Roadmap View */}
             <div className="flex flex-col items-center">
-                {roadmapUnits.map((unit) => (
-                    <div key={unit.id} className="w-full max-w-2xl mb-12">
-                        {/* Unit Header */}
-                        <div className="bg-white dark:bg-[#0f172a] border border-gray-100 dark:border-[#1e293b] rounded-3xl p-6 mb-8 shadow-sm flex items-center justify-between">
-                            <div>
-                                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">{unit.title}</h3>
-                                <p className="text-gray-500 dark:text-gray-400">{unit.description}</p>
+                {roadmapUnits.map((unit) => {
+                    // Check if unit has any unlocked/completed lesson to give it a red glow outline
+                    const isUnitActive = unit.lessons.some((l: any) => l.status === 'unlocked' || l.status === 'completed');
+
+                    return (
+                        <div key={unit.id} className="w-full max-w-3xl mb-12 flex relative">
+                            {/* Unit Circle (Left side, absolute or negative margin) */}
+                            <div className="absolute -left-6 md:-left-12 top-6 w-8 h-8 rounded-full bg-[#AF2024] text-white flex items-center justify-center font-bold text-sm shadow-md z-10">
+                                {unit.id}
                             </div>
-                            <div className="bg-[#AF2024]/10 text-[#AF2024] dark:bg-red-900/30 dark:text-red-400 px-4 py-2 rounded-xl font-bold flex-shrink-0">
-                                Unit {unit.id}
+
+                            {/* Vertical joining line for units (optional background line) */}
+                            <div className="absolute -left-[10px] md:-left-[34px] top-14 bottom-[-48px] w-0.5 bg-gray-200 dark:bg-gray-800 -z-0"></div>
+
+                            {/* Unit Card */}
+                            <div className={`w-full bg-white dark:bg-[#151c2c] rounded-3xl p-6 md:p-8 flex flex-col 
+                                ${isUnitActive ? 'border-2 border-[#AF2024]/50 shadow-[0_0_15px_rgba(175,32,36,0.1)]' : 'border border-gray-100 dark:border-[#1e293b]'}
+                            `}>
+                                {/* Unit Header */}
+                                <div className="mb-6">
+                                    <h3 className={`text-xl font-bold mb-1 ${isUnitActive ? 'text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400'}`}>
+                                        Unit {unit.id}: {unit.title}
+                                    </h3>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400">{unit.description}</p>
+                                </div>
+
+                                {/* Lessons List */}
+                                <div className="flex flex-col gap-3">
+                                    {unit.lessons.map((lesson: any) => {
+                                        const isLocked = lesson.status === 'locked';
+                                        const isCompleted = lesson.status === 'completed';
+                                        const isCurrent = lesson.status === 'unlocked';
+
+                                        // Shared generic style for list item rows
+                                        let rowStyle = 'flex items-center justify-between p-4 rounded-xl border transition-all ';
+                                        if (isCompleted) {
+                                            rowStyle += 'bg-gray-50 dark:bg-gray-800/30 border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600';
+                                        } else if (isCurrent) {
+                                            rowStyle += 'bg-[#AF2024]/5 dark:bg-red-900/10 border-[#AF2024]/30 dark:border-red-900/50 hover:border-[#AF2024] dark:hover:border-red-500';
+                                        } else {
+                                            rowStyle += 'bg-transparent border-transparent opacity-60 pointer-events-none';
+                                        }
+
+                                        // Icon logic based on lesson type
+                                        const getIcon = (type: string, isLck: boolean) => {
+                                            if (type === 'flashcard') {
+                                                return <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect><rect x="9" y="9" width="16" height="16" rx="2" ry="2"></rect></svg>;
+                                            } else if (type === 'grammar') {
+                                                return <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>;
+                                            } else if (type === 'practice') {
+                                                return <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="14 2 18 6 7 17 3 17 3 13 14 2"></polygon><line x1="3" y1="22" x2="21" y2="22"></line></svg>;
+                                            }
+                                        };
+
+                                        return (
+                                            <Link
+                                                key={lesson.id}
+                                                href={isLocked ? '#' : lesson.href}
+                                                className={rowStyle}
+                                            >
+                                                <div className="flex items-center gap-4">
+                                                    <span className={`flex items-center justify-center w-8 h-8 rounded-lg ${isCurrent ? 'bg-white dark:bg-gray-800 text-[#AF2024] shadow-sm' : 'text-gray-500 dark:text-gray-400'}`}>
+                                                        {getIcon(lesson.type, isLocked)}
+                                                    </span>
+                                                    <span className={`font-semibold ${isLocked ? 'text-gray-500 dark:text-gray-500' : 'text-gray-800 dark:text-gray-200'}`}>
+                                                        {lesson.type.charAt(0).toUpperCase() + lesson.type.slice(1)} {lesson.label ? `- ${lesson.label}` : ''}
+                                                    </span>
+                                                </div>
+
+                                                <div className="flex items-center justify-center">
+                                                    {isLocked ? (
+                                                        <span className="text-yellow-600 dark:text-yellow-500/70 p-1">
+                                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                                                        </span>
+                                                    ) : isCompleted ? (
+                                                        <span className="text-green-500 p-1">
+                                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                                        </span>
+                                                    ) : (
+                                                        <span className="bg-[#FF9600] text-white rounded p-1 shadow-sm">
+                                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </Link>
+                                        );
+                                    })}
+                                </div>
                             </div>
                         </div>
-
-                        {/* Lessons Path - Vertical Timeline */}
-                        <div className="flex flex-col gap-0 relative ml-4 md:ml-8">
-                            {/* Connecting Line behind nodes */}
-                            <div className="absolute top-8 bottom-12 left-[23px] md:left-[27px] w-1 bg-gray-200 dark:bg-gray-800 -z-10 rounded-full"></div>
-
-                            {unit.lessons.map((lesson: any) => {
-                                // Determine styles based on status
-                                let nodeStyle = '';
-                                let cardStyle = '';
-                                let icon = null;
-                                const isLocked = lesson.status === 'locked';
-
-                                if (lesson.status === 'completed') {
-                                    nodeStyle = 'bg-yellow-400 text-white shadow-md border-4 border-white dark:border-[#0f172a]';
-                                    cardStyle = 'bg-white dark:bg-[#0f172a] border border-gray-100 dark:border-gray-800 hover:border-yellow-400 dark:hover:border-yellow-600';
-                                    icon = <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>;
-                                } else if (lesson.status === 'unlocked') {
-                                    nodeStyle = 'bg-[#AF2024] text-white shadow-lg shadow-red-900/20 border-4 border-white dark:border-[#0f172a]';
-                                    cardStyle = 'bg-white dark:bg-[#0f172a] border-2 border-[#AF2024]/30 dark:border-red-900/50 hover:border-[#AF2024] dark:hover:border-red-500 shadow-md';
-                                    icon = <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>;
-                                } else {
-                                    nodeStyle = 'bg-gray-200 dark:bg-gray-800 text-gray-400 dark:text-gray-600 border-4 border-white dark:border-[#0f172a]';
-                                    cardStyle = 'bg-gray-50 dark:bg-gray-800/20 border border-gray-100 dark:border-gray-800 opacity-60';
-                                    icon = <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>;
-                                }
-
-                                return (
-                                    <div key={lesson.id} className="flex items-start gap-6 md:gap-8 mb-8 relative group w-full">
-
-                                        {/* Timeline Node */}
-                                        <div className={`relative z-10 w-12 h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center flex-shrink-0 mt-2 ${nodeStyle} transition-transform ${!isLocked && 'group-hover:scale-110'}`}>
-                                            {icon}
-                                        </div>
-
-                                        {/* Detailed Lesson Card */}
-                                        <Link
-                                            href={isLocked ? '#' : lesson.href}
-                                            className={`flex-1 rounded-3xl p-6 transition-all block ${cardStyle} ${isLocked ? 'cursor-not-allowed' : 'cursor-pointer hover:-translate-y-1'}`}
-                                        >
-                                            <div className="flex justify-between items-start mb-2">
-                                                <span className={`text-xs font-bold uppercase tracking-wider ${lesson.status === 'completed' ? 'text-yellow-600 dark:text-yellow-500' : lesson.status === 'unlocked' ? 'text-[#AF2024] dark:text-red-400' : 'text-gray-400 dark:text-gray-500'}`}>
-                                                    {lesson.label}
-                                                </span>
-                                                <span className="text-gray-400 dark:text-gray-500 text-sm font-medium capitalize">
-                                                    {lesson.type}
-                                                </span>
-                                            </div>
-                                            <h4 className={`text-xl font-bold mb-2 ${isLocked ? 'text-gray-500 dark:text-gray-400' : 'text-gray-900 dark:text-white'}`}>
-                                                {lesson.title}
-                                            </h4>
-                                            <p className={`text-sm ${isLocked ? 'text-gray-400 dark:text-gray-500' : 'text-gray-600 dark:text-gray-300'}`}>
-                                                {lesson.desc}
-                                            </p>
-                                        </Link>
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    </div>
-                ))}
+                    );
+                })}
             </div>
         </div>
     );
