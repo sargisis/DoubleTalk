@@ -13,19 +13,20 @@ const grammarLesson = {
     description: 'Learn the most important verb in the Polish language.',
     sections: [
         {
-            type: 'text',
+            type: 'intro',
+            title: 'Welcome to Grammar!',
             content: 'The verb "być" is the foundation of Polish sentences. Unlike English, Polish often drops the pronoun (I, you, he) because the verb ending already tells us who is speaking.'
         },
         {
             type: 'table',
-            title: 'Conjugation (Present Tense)',
+            title: 'Present Tense Conjugation',
             headers: ['Pronoun', 'Verb form', 'English'],
             rows: [
                 ['Ja (I)', 'jestem', 'am'],
                 ['Ty (You)', 'jesteś', 'are'],
-                ['On/Ona/Ono (He/She/It)', 'jest', 'is'],
+                ['On/Ona/Ono', 'jest', 'is'],
                 ['My (We)', 'jesteśmy', 'are'],
-                ['Wy (You plural)', 'jesteście', 'are'],
+                ['Wy (You pl.)', 'jesteście', 'are'],
                 ['Oni/One (They)', 'są', 'are']
             ]
         },
@@ -44,14 +45,30 @@ const grammarLesson = {
 export default function GrammarPage({ params }: { params: Promise<{ id: string }> }) {
     const router = useRouter();
     const resolvedParams = React.use(params);
+    const lessonId = parseInt(resolvedParams.id) || 102;
+
+    const [currentStep, setCurrentStep] = useState(0);
     const [revealedIds, setRevealedIds] = useState<number[]>([]);
+    const [phase, setPhase] = useState<'learning' | 'done'>('learning');
     const [isCompleting, setIsCompleting] = useState(false);
+
+    const totalSteps = grammarLesson.sections.length;
+    const progressPercent = ((currentStep) / totalSteps) * 100;
 
     const toggleReveal = (index: number) => {
         if (revealedIds.includes(index)) {
             setRevealedIds(revealedIds.filter(id => id !== index));
         } else {
             setRevealedIds([...revealedIds, index]);
+        }
+    };
+
+    const handleNext = () => {
+        if (currentStep < totalSteps - 1) {
+            setCurrentStep(prev => prev + 1);
+        } else {
+            // Finish lesson
+            handleComplete();
         }
     };
 
@@ -66,73 +83,106 @@ export default function GrammarPage({ params }: { params: Promise<{ id: string }
                     'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({
-                    lesson_id: parseInt(resolvedParams.id) || 102,
+                    lesson_id: lessonId,
                     status: 'completed'
                 })
             });
 
             if (res.ok) {
                 playSound('success');
-                router.push('/courses');
+                setPhase('done');
             } else {
                 console.error("Failed to mark as complete");
-                setIsCompleting(false);
             }
         } catch (err) {
             console.error(err);
+        } finally {
             setIsCompleting(false);
         }
     };
 
-    return (
-        <div className="max-w-[800px] mx-auto pb-20">
-            {/* Nav Back */}
-            <Link href="/dashboard" className="inline-flex items-center gap-2 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white mb-8 transition-colors font-medium">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-                Back to Roadmap
-            </Link>
-
-            {/* Header */}
-            <header className="mb-12">
-                <div className="text-[#AF2024] dark:text-red-400 font-bold tracking-wider uppercase text-sm mb-3">Grammar Lesson</div>
-                <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-4 leading-tight">
-                    {grammarLesson.title}
-                </h1>
-                <p className="text-xl text-gray-500 dark:text-gray-400">
-                    {grammarLesson.description}
+    if (phase === 'done') {
+        return (
+            <div className="flex flex-col items-center justify-center h-[70vh] text-center px-4 max-w-[600px] mx-auto animate-in zoom-in duration-500">
+                <div className="text-[100px] mb-8 leading-none">🧠</div>
+                <h2 className="text-4xl font-black text-[#af2024] dark:text-[#ff474d] mb-4">You're getting smarter!</h2>
+                <p className="text-lg font-medium text-gray-600 dark:text-gray-300 mb-8">
+                    You've successfully completed the grammar lesson on {grammarLesson.title}.
                 </p>
+
+                <div className="flex items-center gap-2 bg-yellow-400/20 px-6 py-3 rounded-2xl mb-10 border border-yellow-400/30">
+                    <span className="text-2xl">⚡</span>
+                    <span className="text-xl font-bold text-yellow-600 dark:text-yellow-500">+10 XP Earned</span>
+                </div>
+
+                <div className="flex gap-4 w-full">
+                    <Link href="/courses" className="flex-1 bg-[#58CC02] hover:bg-[#46A302] text-white font-bold text-lg py-5 px-8 rounded-2xl shadow-[0_5px_0_0_rgb(70,163,2)] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center uppercase tracking-wider">
+                        Continue
+                    </Link>
+                </div>
+            </div>
+        );
+    }
+
+    const currentSection = grammarLesson.sections[currentStep];
+
+    return (
+        <div className="max-w-3xl mx-auto py-8 text-gray-900 dark:text-white pb-24 h-full flex flex-col">
+
+            <header className="flex justify-between items-center mb-10">
+                <div className="flex items-center gap-4">
+                    <Link href="/courses" className="text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                    </Link>
+                    <div className="text-gray-500 font-bold tracking-widest uppercase text-sm">
+                        Theory
+                    </div>
+                </div>
+                <div className="flex-1 mx-8 bg-gray-200 dark:bg-gray-800 rounded-full h-3">
+                    <div className="bg-[#AF2024] h-3 rounded-full transition-all duration-300" style={{ width: `${progressPercent}%` }}></div>
+                </div>
+                <div className="font-bold text-gray-500">
+                    {currentStep + 1} / {totalSteps}
+                </div>
             </header>
 
-            {/* Content Blocks */}
-            <article className="prose prose-lg dark:prose-invert max-w-none prose-headings:font-bold prose-p:leading-relaxed prose-a:text-[#AF2024]">
-                {grammarLesson.sections.map((section, idx) => {
-                    if (section.type === 'text') {
-                        return (
-                            <p key={idx} className="text-gray-800 dark:text-gray-200 text-lg mb-8 leading-relaxed">
-                                {section.content}
-                            </p>
-                        );
-                    }
+            <div className="flex-1 flex flex-col animate-in fade-in slide-in-from-right-8 duration-300">
+                <div className="mb-8 text-center">
+                    <span className="bg-[#AF2024]/10 text-[#AF2024] dark:bg-red-900/40 dark:text-red-300 text-xs font-bold px-3 py-1 uppercase tracking-wider rounded-full inline-block mb-4">
+                        {currentSection.title}
+                    </span>
+                    <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white">
+                        {grammarLesson.title}
+                    </h1>
+                </div>
 
-                    if (section.type === 'table') {
-                        return (
-                            <div key={idx} className="mb-12 overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm">
-                                <div className="bg-gray-50 dark:bg-gray-800/50 px-6 py-4 border-b border-gray-200 dark:border-gray-800">
-                                    <h3 className="text-lg font-bold text-gray-900 dark:text-white m-0">{section.title}</h3>
-                                </div>
+                <div className="flex-1 bg-white dark:bg-[#151c2c] border-2 border-gray-100 dark:border-[#1e293b] rounded-[2.5rem] p-6 md:p-10 shadow-sm flex flex-col overflow-y-auto mb-8">
+
+                    {currentSection.type === 'intro' && (
+                        <div className="flex flex-col items-center justify-center h-full text-center">
+                            <div className="text-6xl mb-6">💡</div>
+                            <p className="text-xl md:text-2xl font-medium text-gray-700 dark:text-gray-300 leading-relaxed max-w-xl">
+                                {currentSection.content}
+                            </p>
+                        </div>
+                    )}
+
+                    {currentSection.type === 'table' && (
+                        <div className="w-full flex flex-col justify-center h-full">
+                            <div className="overflow-hidden rounded-2xl border-2 border-gray-100 dark:border-[#1e293b]">
                                 <table className="w-full text-left m-0 border-collapse">
                                     <thead>
-                                        <tr className="bg-white dark:bg-[#0f172a] border-b border-gray-100 dark:border-gray-800">
-                                            {section.headers?.map((h, i) => (
-                                                <th key={i} className="px-6 py-4 text-sm font-semibold text-gray-500 dark:text-gray-400 capitalize">{h}</th>
+                                        <tr className="bg-gray-50 dark:bg-[#0f172a] border-b-2 border-gray-100 dark:border-[#1e293b]">
+                                            {currentSection.headers?.map((h, i) => (
+                                                <th key={i} className="px-4 py-4 md:px-6 md:py-5 text-sm uppercase tracking-wide font-bold text-gray-500 dark:text-gray-400">{h}</th>
                                             ))}
                                         </tr>
                                     </thead>
-                                    <tbody className="bg-white dark:bg-[#0f172a] divide-y divide-gray-100 dark:divide-gray-800/60">
-                                        {section.rows?.map((row, rIdx) => (
+                                    <tbody className="bg-white dark:bg-[#151c2c] divide-y divide-gray-100 dark:divide-gray-800/60">
+                                        {currentSection.rows?.map((row, rIdx) => (
                                             <tr key={rIdx} className="hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors">
                                                 {row.map((cell, cIdx) => (
-                                                    <td key={cIdx} className={`px-6 py-4 ${cIdx === 1 ? 'font-bold text-[#AF2024] dark:text-red-400' : 'text-gray-700 dark:text-gray-300'}`}>
+                                                    <td key={cIdx} className={`px-4 py-4 md:px-6 md:py-5 text-lg ${cIdx === 1 ? 'font-black text-[#AF2024] dark:text-red-400' : 'text-gray-700 dark:text-gray-300 font-medium'}`}>
                                                         {cell}
                                                     </td>
                                                 ))}
@@ -141,58 +191,51 @@ export default function GrammarPage({ params }: { params: Promise<{ id: string }
                                     </tbody>
                                 </table>
                             </div>
-                        );
-                    }
+                        </div>
+                    )}
 
-                    if (section.type === 'examples') {
-                        return (
-                            <div key={idx} className="mb-12">
-                                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-3">
-                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#AF2024] dark:text-red-400"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-                                    {section.title}
-                                </h3>
-                                <div className="space-y-4">
-                                    {section.items?.map((item, iIdx) => {
-                                        const isRevealed = revealedIds.includes(iIdx);
-                                        return (
-                                            <div
-                                                key={iIdx}
-                                                onClick={() => toggleReveal(iIdx)}
-                                                className="bg-white dark:bg-[#0f172a] border-2 border-transparent hover:border-gray-200 dark:border-[#1e293b] dark:hover:border-gray-700 p-6 rounded-2xl shadow-sm cursor-pointer transition-all flex flex-col gap-3 group"
-                                            >
-                                                <div className="flex items-center justify-between">
-                                                    <span className="text-xl font-medium text-gray-900 dark:text-white">{item.pl}</span>
-                                                    <button className="text-gray-300 dark:text-gray-600 group-hover:text-[#AF2024] dark:group-hover:text-red-400 transition-colors">
-                                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-                                                    </button>
-                                                </div>
+                    {currentSection.type === 'examples' && (
+                        <div className="w-full h-full flex flex-col justify-center gap-4">
+                            {currentSection.items?.map((item, iIdx) => {
+                                const isRevealed = revealedIds.includes(iIdx);
+                                return (
+                                    <div
+                                        key={iIdx}
+                                        onClick={() => toggleReveal(iIdx)}
+                                        className="bg-gray-50 dark:bg-[#0f172a] border-2 border-gray-200 hover:border-gray-300 dark:border-[#1e293b] dark:hover:border-gray-700 p-6 rounded-2xl shadow-sm cursor-pointer transition-all group active:scale-[0.98]"
+                                    >
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">{item.pl}</span>
+                                            <button className="text-gray-400 dark:text-gray-600 group-hover:text-[#AF2024] dark:group-hover:text-red-400 transition-colors">
+                                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                                    {isRevealed ? <path d="M18 15l-6-6-6 6" /> : <path d="M6 9l6 6 6-6" />}
+                                                </svg>
+                                            </button>
+                                        </div>
 
-                                                <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isRevealed ? 'max-h-20 opacity-100' : 'max-h-0 opacity-0'}`}>
-                                                    <div className="pt-3 border-t border-gray-100 dark:border-gray-800 text-gray-500 dark:text-gray-400 font-medium">
-                                                        {item.en}
-                                                    </div>
-                                                </div>
+                                        <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isRevealed ? 'max-h-20 opacity-100 mt-4' : 'max-h-0 opacity-0 mt-0'}`}>
+                                            <div className="pt-4 border-t-2 border-gray-200 dark:border-gray-800 text-[#AF2024] dark:text-red-400 font-bold text-lg md:text-xl">
+                                                {item.en}
                                             </div>
-                                        );
-                                    })}
-                                </div>
-                            </div>
-                        );
-                    }
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    )}
 
-                    return null;
-                })}
-            </article>
+                </div>
 
-            {/* Next Action */}
-            <div className="mt-16 flex justify-center">
                 <button
-                    onClick={handleComplete}
+                    onClick={handleNext}
                     disabled={isCompleting}
-                    className="bg-[#AF2024] hover:bg-[#8B1417] text-white px-8 py-4 rounded-2xl font-bold text-lg shadow-[0_4px_0_0_rgb(139,20,23)] hover:-translate-y-1 active:translate-y-1 active:shadow-none disabled:opacity-70 transition-all flex items-center gap-2"
+                    className="w-full bg-[#AF2024] hover:bg-[#8e191d] text-white font-bold text-xl py-5 rounded-2xl shadow-[0_5px_0_0_rgb(117,20,24)] active:translate-y-1 active:shadow-none transition-all uppercase tracking-wider flex items-center justify-center"
                 >
-                    {isCompleting ? 'Completing...' : 'Mark as Complete'}
-                    {!isCompleting && <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>}
+                    {isCompleting ? (
+                        <div className="w-6 h-6 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
+                    ) : (
+                        currentStep < totalSteps - 1 ? 'Got it' : 'Finish Lesson'
+                    )}
                 </button>
             </div>
         </div>

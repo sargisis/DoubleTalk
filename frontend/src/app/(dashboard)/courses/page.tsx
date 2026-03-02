@@ -10,7 +10,7 @@ export default function CoursesPage() {
             title: "Unit 1: Introductions",
             description: "Learn basic greetings and how to introduce yourself.",
             lessons: [
-                { id: 101, type: 'vocabulary', label: 'Step 1: Flashcards', title: 'Basic Greetings', desc: 'Memorize the core words for saying hello and goodbye.', defaultStatus: 'unlocked', href: '/flashcards?lessonId=101' },
+                { id: 101, type: 'vocabulary', label: 'Step 1: New Words', title: 'Basic Greetings', desc: 'Memorize the core words for saying hello and goodbye.', defaultStatus: 'unlocked', href: '/learn/101' },
                 { id: 102, type: 'grammar', label: 'Step 2: Theory', title: 'Verb "Być" (To Be)', desc: 'Read the foundational grammar rule for Polish sentences.', defaultStatus: 'locked', href: '/grammar/102' },
                 { id: 103, type: 'homework', label: 'Step 3: Practice', title: 'Saying Hello', desc: 'Interactive exercise to build sentences.', defaultStatus: 'locked', href: '/homework/103' },
             ]
@@ -20,7 +20,7 @@ export default function CoursesPage() {
             title: "Unit 2: Essential Phrases",
             description: "Yes, No, Please, Thanks, and basic polite phrases.",
             lessons: [
-                { id: 201, type: 'vocabulary', label: 'Step 1: Flashcards', title: 'Polite Words', desc: 'Learn common polite phrases.', defaultStatus: 'locked', href: '/flashcards?lessonId=201' },
+                { id: 201, type: 'vocabulary', label: 'Step 1: New Words', title: 'Polite Words', desc: 'Learn common polite phrases.', defaultStatus: 'locked', href: '/learn/201' },
                 { id: 202, type: 'homework', label: 'Step 2: Practice', title: 'Manners Quiz', desc: 'Test your knowledge on polite phrases.', defaultStatus: 'locked', href: '/homework/202' },
             ]
         }

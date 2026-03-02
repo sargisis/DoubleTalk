@@ -12,52 +12,41 @@ interface Card {
     language_code: string;
 }
 
-type Phase = 'loading' | 'empty' | 'intro' | 'quiz' | 'done';
+type Phase = 'intro' | 'quiz' | 'done';
 
-const FALLBACK_TRANSLATIONS = ["apple", "dog", "cat", "hello", "water", "book", "car", "house", "yes", "no", "please", "thank you"];
+const LessonWords = {
+    101: [
+        { id: 1001, text: "Dzień dobry", translation: "Good morning / Good day", language_code: "pl" },
+        { id: 1002, text: "Cześć", translation: "Hello / Bye (informal)", language_code: "pl" },
+        { id: 1003, text: "Dobry wieczór", translation: "Good evening", language_code: "pl" },
+        { id: 1004, text: "Do widzenia", translation: "Goodbye (formal)", language_code: "pl" },
+        { id: 1005, text: "Jak się masz?", translation: "How are you?", language_code: "pl" }
+    ],
+    201: [
+        { id: 2001, text: "Tak", translation: "Yes", language_code: "pl" },
+        { id: 2002, text: "Nie", translation: "No", language_code: "pl" },
+        { id: 2003, text: "Proszę", translation: "Please / Here you go", language_code: "pl" },
+        { id: 2004, text: "Dziękuję", translation: "Thank you", language_code: "pl" },
+        { id: 2005, text: "Przepraszam", translation: "Excuse me / I'm sorry", language_code: "pl" }
+    ]
+};
 
-export default function FlashcardsPage() {
-    const [phase, setPhase] = useState<Phase>('loading');
-    const [cards, setCards] = useState<Card[]>([]);
+const FALLBACK_TRANSLATIONS = ["apple", "dog", "cat", "water", "book", "car", "house"];
 
-    // Intro & Quiz indexing
+export default function LearnLessonPage({ params }: { params: Promise<{ id: string }> }) {
+    const resolvedParams = React.use(params);
+    const lessonId = parseInt(resolvedParams.id) || 101;
+
+    // Fallback to 101 if lesson not found in mock data
+    const cards: Card[] = LessonWords[lessonId as keyof typeof LessonWords] || LessonWords[101];
+
+    const [phase, setPhase] = useState<Phase>('intro');
     const [currentIndex, setCurrentIndex] = useState(0);
 
     // Quiz State
     const [quizOptions, setQuizOptions] = useState<string[]>([]);
     const [selectedOption, setSelectedOption] = useState<string | null>(null);
     const [quizResult, setQuizResult] = useState<'idle' | 'success' | 'fail'>('idle');
-
-    useEffect(() => {
-        fetchCards();
-    }, []);
-
-    const fetchCards = async () => {
-        setPhase('loading');
-        try {
-            const token = getCookie('token');
-            const res = await fetch('http://localhost:8080/api/v1/cards/next', {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            if (res.ok) {
-                const data = await res.json();
-                const sessionCards = (data || []).slice(0, 5); // Take max 5 for a session
-
-                if (sessionCards.length > 0) {
-                    setCards(sessionCards);
-                    setPhase('intro');
-                    setCurrentIndex(0);
-                } else {
-                    setPhase('empty');
-                }
-            } else {
-                setPhase('empty');
-            }
-        } catch (err) {
-            console.error(err);
-            setPhase('empty');
-        }
-    };
 
     const playAudio = (text: string, lang = 'pl-PL') => {
         if (!window.speechSynthesis) return;
@@ -111,24 +100,30 @@ export default function FlashcardsPage() {
             setQuizResult('success');
             playSound('success');
 
-            // Optionally call backend review endpoint to mark as learned
-            try {
-                const token = getCookie('token');
-                await fetch(`http://localhost:8080/api/v1/cards/${currentCard.id}/review`, {
+        } else {
+            setQuizResult('fail');
+            playSound('fail');
+        }
+    };
+
+    const markLessonComplete = async () => {
+        try {
+            const token = getCookie('token');
+            if (token) {
+                await fetch('http://localhost:8080/api/v1/course/status', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`
                     },
-                    body: JSON.stringify({ score: 4 }) // Good score
+                    body: JSON.stringify({
+                        lesson_id: lessonId,
+                        status: 'completed'
+                    })
                 });
-            } catch (err) {
-                console.error("Failed to mark card reviewed", err);
             }
-
-        } else {
-            setQuizResult('fail');
-            playSound('fail');
+        } catch (err) {
+            console.error("Failed to unlock next lesson", err);
         }
     };
 
@@ -141,6 +136,7 @@ export default function FlashcardsPage() {
             // Session complete
             setPhase('done');
             playSound('success'); // overall success!
+            markLessonComplete();
         }
     };
 
@@ -152,49 +148,23 @@ export default function FlashcardsPage() {
 
     // === RENDER HELPERS ===
 
-    if (phase === 'loading') {
-        return (
-            <div className="flex h-[60vh] items-center justify-center">
-                <div className="w-12 h-12 border-4 border-gray-200 border-t-[#AF2024] rounded-full animate-spin"></div>
-            </div>
-        );
-    }
-
-    if (phase === 'empty') {
-        return (
-            <div className="flex flex-col items-center justify-center h-[60vh] text-center">
-                <span className="text-6xl mb-6">🎉</span>
-                <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">You&apos;re all caught up!</h2>
-                <p className="text-gray-500 dark:text-gray-400 max-w-md mb-8">
-                    There are no words scheduled for review right now. Go learn some new words from the Courses section!
-                </p>
-                <Link href="/courses" className="bg-[#AF2024] text-white font-bold py-3 px-8 rounded-xl hover:-translate-y-1 transition-transform shadow-lg shadow-[#AF2024]/30">
-                    Go to Courses
-                </Link>
-            </div>
-        );
-    }
-
     if (phase === 'done') {
         return (
             <div className="flex flex-col items-center justify-center h-[70vh] text-center px-4 max-w-[600px] mx-auto animate-in zoom-in duration-500">
-                <div className="text-[100px] mb-8 leading-none">🏆</div>
-                <h2 className="text-4xl font-black text-[#af2024] dark:text-[#ff474d] mb-4">Session Complete!</h2>
+                <div className="text-[100px] mb-8 leading-none">🎖️</div>
+                <h2 className="text-4xl font-black text-[#af2024] dark:text-[#ff474d] mb-4">You did it!</h2>
                 <p className="text-lg font-medium text-gray-600 dark:text-gray-300 mb-8">
-                    You crushed {cards.length} words! Keep the momentum going.
+                    You've successfully learned {cards.length} new words.
                 </p>
 
                 <div className="flex items-center gap-2 bg-yellow-400/20 px-6 py-3 rounded-2xl mb-10 border border-yellow-400/30">
                     <span className="text-2xl">⚡</span>
-                    <span className="text-xl font-bold text-yellow-600 dark:text-yellow-500">+15 XP Earned</span>
+                    <span className="text-xl font-bold text-yellow-600 dark:text-yellow-500">+10 XP Earned</span>
                 </div>
 
                 <div className="flex gap-4 w-full">
-                    <button onClick={fetchCards} className="flex-1 bg-[#AF2024] hover:bg-[#8e191d] text-white font-bold text-lg py-5 px-8 rounded-2xl shadow-[0_5px_0_0_rgb(117,20,24)] active:translate-y-1 active:shadow-none transition-all">
-                        Review More
-                    </button>
-                    <Link href="/dashboard" className="flex-1 bg-white hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-white border-2 border-gray-200 dark:border-gray-700 font-bold text-lg py-5 px-8 rounded-2xl shadow-[0_5px_0_0_rgb(229,231,235)] dark:shadow-[0_5px_0_0_rgb(55,65,81)] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center">
-                        Back to Home
+                    <Link href="/courses" className="flex-1 bg-[#58CC02] hover:bg-[#46A302] text-white font-bold text-lg py-5 px-8 rounded-2xl shadow-[0_5px_0_0_rgb(70,163,2)] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center uppercase tracking-wider">
+                        Continue
                     </Link>
                 </div>
             </div>
@@ -204,14 +174,18 @@ export default function FlashcardsPage() {
     const currentCard = cards[currentIndex];
 
     // Progress
-    const totalSteps = phase === 'intro' ? cards.length : cards.length;
-    const progressPercent = ((currentIndex) / totalSteps) * 100;
+    const progressPercent = ((currentIndex) / cards.length) * 100;
 
     return (
         <div className="max-w-2xl mx-auto py-8 text-gray-900 dark:text-white pb-24 h-full flex flex-col">
             <header className="flex justify-between items-center mb-10">
-                <div className="text-gray-500 font-bold tracking-widest uppercase text-sm">
-                    {phase === 'intro' ? 'Learn Mode' : 'Quiz Mode'}
+                <div className="flex items-center gap-4">
+                    <Link href="/courses" className="text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                    </Link>
+                    <div className="text-gray-500 font-bold tracking-widest uppercase text-sm">
+                        {phase === 'intro' ? 'Learn New Words' : 'Quiz Mode'}
+                    </div>
                 </div>
                 <div className="flex-1 mx-8 bg-gray-200 dark:bg-gray-800 rounded-full h-3">
                     <div className="bg-[#AF2024] h-3 rounded-full transition-all duration-300" style={{ width: `${progressPercent}%` }}></div>
@@ -225,7 +199,9 @@ export default function FlashcardsPage() {
             {phase === 'intro' && (
                 <div className="flex-1 flex flex-col items-center animate-in fade-in slide-in-from-bottom-4 duration-300">
                     <div className="mb-4 text-center">
-                        <span className="bg-indigo-100 text-indigo-800 dark:bg-indigo-900/40 dark:text-indigo-300 text-xs font-bold px-3 py-1 uppercase tracking-wider rounded-full">New Word</span>
+                        <span className="bg-[#AF2024]/10 text-[#AF2024] dark:bg-red-900/40 dark:text-red-300 text-xs font-bold px-3 py-1 uppercase tracking-wider rounded-full flex items-center gap-2">
+                            <span>✨</span> New Unit Word
+                        </span>
                     </div>
 
                     <div className="bg-white dark:bg-[#151c2c] border-2 border-gray-100 dark:border-[#1e293b] w-full aspect-video md:aspect-[4/3] rounded-[2.5rem] flex flex-col items-center justify-center p-8 shadow-sm mb-12 relative overflow-hidden group">
@@ -240,9 +216,7 @@ export default function FlashcardsPage() {
                         </div>
 
                         <h2 className="text-5xl md:text-6xl font-black text-center mb-6">{currentCard.text}</h2>
-
                         <div className="w-16 h-1 bg-gray-200 dark:bg-gray-700 rounded-full mb-6"></div>
-
                         <p className="text-2xl md:text-3xl text-gray-500 dark:text-gray-400 font-medium text-center">{currentCard.translation}</p>
                     </div>
 
