@@ -8,8 +8,10 @@ interface UserProfile {
     email: string;
     avatar_url: string;
     words_learned: number;
+    completed_lessons: number;
     xp_points: number;
     level: number;
+    streak: number;
 }
 
 export default function ProfilePage() {
@@ -260,28 +262,47 @@ export default function ProfilePage() {
                         )}
                         <p className="text-gray-500 dark:text-gray-400 font-medium mb-4">{profile?.email}</p>
 
-                        <div className="flex gap-3">
-                            <span className="bg-[#FFF8E6] dark:bg-yellow-900/30 text-[#C7912E] dark:text-yellow-500 px-4 py-1.5 rounded-full text-sm font-bold flex items-center gap-1.5 shadow-sm dark:shadow-none">
-                                <span className="text-lg">⚡</span> {profile?.xp_points} XP
-                            </span>
-                            <span className="bg-[#FDE8E8] dark:bg-red-900/20 text-[#AF2024] dark:text-red-400 px-4 py-1.5 rounded-full text-sm font-bold flex items-center gap-1.5 shadow-sm dark:shadow-none">
-                                <span className="text-lg">⭐</span> Lvl {profile?.level}
-                            </span>
+                        <span className="bg-[#FFF8E6] dark:bg-yellow-900/30 text-[#C7912E] dark:text-yellow-500 px-4 py-1.5 rounded-full text-sm font-bold flex items-center gap-1.5 shadow-sm dark:shadow-none">
+                            <span className="text-lg">⚡</span> {profile?.xp_points} XP
+                        </span>
+                        <span className="bg-[#FDE8E8] dark:bg-red-900/20 text-[#AF2024] dark:text-red-400 px-4 py-1.5 rounded-full text-sm font-bold flex items-center gap-1.5 shadow-sm dark:shadow-none">
+                            <span className="text-lg">⭐</span> Lvl {profile?.level}
+                        </span>
+                    </div>
+
+                    {/* XP Progress Bar */}
+                    <div className="mt-8 w-full max-w-[300px] mb-2 sm:mb-0">
+                        <div className="flex justify-between items-end mb-2">
+                            <span className="text-sm font-bold text-gray-700 dark:text-gray-300">Level Progress</span>
+                            <span className="text-xs font-bold text-[#AF2024] dark:text-red-400">{profile ? (profile.xp_points % 500) : 0} / 500 XP</span>
+                        </div>
+                        <div className="w-full bg-gray-100 dark:bg-gray-800 rounded-full h-3 max-w-[100%] overflow-hidden shadow-inner">
+                            <div
+                                className="bg-gradient-to-r from-[#AF2024] to-red-400 h-3 rounded-full transition-all duration-1000 ease-out"
+                                style={{ width: `${profile ? ((profile.xp_points % 500) / 500) * 100 : 0}%` }}
+                            ></div>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <div className="pt-10">
-                    <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-6">Learning Statistics</h3>
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="bg-gray-50 dark:bg-gray-800/50 rounded-2xl p-6 border border-gray-100 dark:border-gray-800 transition-colors">
-                            <p className="text-gray-500 dark:text-gray-400 text-sm font-bold mb-1 uppercase tracking-wider">Words Mastered</p>
-                            <p className="text-3xl font-bold text-[#AF2024] dark:text-red-400">{profile?.words_learned}</p>
+            <div className="pt-10">
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-6">Learning Statistics</h3>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    <div className="bg-gray-50 dark:bg-gray-800/50 rounded-2xl p-6 border border-gray-100 dark:border-gray-800 transition-colors">
+                        <p className="text-gray-500 dark:text-gray-400 text-sm font-bold mb-1 uppercase tracking-wider">Current Streak</p>
+                        <div className="flex items-center gap-2">
+                            <span className="text-3xl font-bold text-[#FF9600] dark:text-orange-400">{profile?.streak || 0}</span>
+                            <span className="text-2xl">🔥</span>
                         </div>
-                        <div className="bg-gray-50 dark:bg-gray-800/50 rounded-2xl p-6 border border-gray-100 dark:border-gray-800 transition-colors">
-                            <p className="text-gray-500 dark:text-gray-400 text-sm font-bold mb-1 uppercase tracking-wider">Current Streak</p>
-                            <p className="text-3xl font-bold text-[#C7912E] dark:text-yellow-500">1 Day</p>
-                        </div>
+                    </div>
+                    <div className="bg-gray-50 dark:bg-gray-800/50 rounded-2xl p-6 border border-gray-100 dark:border-gray-800 transition-colors">
+                        <p className="text-gray-500 dark:text-gray-400 text-sm font-bold mb-1 uppercase tracking-wider">Words Mastered</p>
+                        <p className="text-3xl font-bold text-[#AF2024] dark:text-red-400">{profile?.words_learned}</p>
+                    </div>
+                    <div className="bg-gray-50 dark:bg-gray-800/50 rounded-2xl p-6 border border-gray-100 dark:border-gray-800 transition-colors sm:col-span-2 md:col-span-1">
+                        <p className="text-gray-500 dark:text-gray-400 text-sm font-bold mb-1 uppercase tracking-wider">Lessons Finished</p>
+                        <p className="text-3xl font-bold text-[#58CC02] dark:text-green-400">{profile?.completed_lessons || 0}</p>
                     </div>
                 </div>
             </div>

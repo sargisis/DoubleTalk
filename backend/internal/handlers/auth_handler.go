@@ -96,7 +96,11 @@ func GetProfile(c *gin.Context) {
 	var wordCount int64
 	database.DB.Model(&models.Word{}).Where("user_id = ?", userID).Count(&wordCount)
 
-	// Return the user's actual XP and Level from DB
+	// Calculate completed lessons
+	var completedLessonsCount int64
+	database.DB.Model(&models.LessonProgress{}).Where("user_id = ? AND status = ?", userID, "completed").Count(&completedLessonsCount)
+
+	// Return the user's actual stats from DB
 	c.JSON(http.StatusOK, gin.H{
 		"username":            user.Username,
 		"email":               user.Email,
@@ -104,8 +108,10 @@ func GetProfile(c *gin.Context) {
 		"dark_mode":           user.DarkMode,
 		"email_notifications": user.EmailNotifications,
 		"words_learned":       wordCount,
+		"completed_lessons":   completedLessonsCount,
 		"xp_points":           user.XPPoints,
 		"level":               user.Level,
+		"streak":              user.Streak,
 	})
 }
 

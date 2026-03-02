@@ -12,6 +12,8 @@ type User struct {
 	AvatarURL          string    `json:"avatar_url"`
 	Level              int       `json:"level" gorm:"default:1"`
 	XPPoints           int       `json:"xp_points" gorm:"default:0"`
+	Streak             int       `json:"streak" gorm:"default:0"`
+	LastActivityDate   time.Time `json:"last_activity_date"`
 	DarkMode           bool      `json:"dark_mode" gorm:"default:false"`
 	EmailNotifications bool      `json:"email_notifications" gorm:"default:true"`
 	CreatedAt          time.Time `json:"created_at"`
