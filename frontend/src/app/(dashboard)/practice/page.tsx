@@ -4,7 +4,7 @@ import { getCookie } from 'cookies-next';
 
 export default function PracticePage() {
     const [sentence, setSentence] = useState('');
-    const [responseMessage, setResponseMessage] = useState<string | null>(null);
+    const [responseMessage, setResponseMessage] = useState<{ text: string, correction?: string } | null>(null);
     const [isChecking, setIsChecking] = useState(false);
 
     const handleCheckSentence = async () => {
@@ -26,13 +26,13 @@ export default function PracticePage() {
 
             if (res.ok) {
                 const data = await res.json();
-                setResponseMessage(data.reply);
+                setResponseMessage({ text: data.text, correction: data.correction });
             } else {
-                setResponseMessage("⚠️ I couldn't check that sentence right now.");
+                setResponseMessage({ text: "⚠️ I couldn't check that sentence right now." });
             }
         } catch (err) {
             console.error(err);
-            setResponseMessage("⚠️ Network error while connecting to the AI.");
+            setResponseMessage({ text: "⚠️ Network error while connecting to the AI." });
         } finally {
             setIsChecking(false);
         }
@@ -79,14 +79,30 @@ export default function PracticePage() {
                 </div>
 
                 {responseMessage && (
-                    <div className="mt-8 bg-[#1e293b] rounded-2xl p-6 border-l-4 border-[#AF2024] shadow-lg animate-in slide-in-from-bottom-4 fade-in duration-500">
-                        <div className="flex items-center gap-3 mb-2">
-                            <span className="text-2xl">🤖</span>
-                            <span className="text-white font-bold text-lg">AI Feedback</span>
+                    <div className="mt-8 flex flex-col gap-4 animate-in slide-in-from-bottom-4 fade-in duration-500">
+                        {/* AI Main Response */}
+                        <div className="bg-[#1e293b] rounded-2xl p-6 border-l-4 border-gray-500 shadow-lg">
+                            <div className="flex items-center gap-3 mb-2">
+                                <span className="text-2xl">💬</span>
+                                <span className="text-white font-bold text-lg">AI Response</span>
+                            </div>
+                            <p className="text-gray-300 leading-relaxed font-medium">
+                                {responseMessage.text}
+                            </p>
                         </div>
-                        <p className="text-gray-300 leading-relaxed font-medium">
-                            {responseMessage}
-                        </p>
+
+                        {/* Grammar Correction (if exists) */}
+                        {responseMessage.correction && (
+                            <div className="bg-[#AF2024]/10 rounded-2xl p-6 border-l-4 border-[#AF2024] shadow-lg">
+                                <div className="flex items-center gap-3 mb-2">
+                                    <span className="text-2xl">✏️</span>
+                                    <span className="text-[#AF2024] dark:text-red-400 font-bold text-lg">Correction</span>
+                                </div>
+                                <p className="text-gray-300 leading-relaxed font-medium">
+                                    {responseMessage.correction}
+                                </p>
+                            </div>
+                        )}
                     </div>
                 )}
             </div>

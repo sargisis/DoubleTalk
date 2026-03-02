@@ -36,7 +36,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                             <BookIcon />
                             Courses
                         </Link>
-                        <Link href="/flashcards" className="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-500 hover:bg-gray-50 hover:text-gray-900 dark:hover:bg-[#1e293b] dark:text-gray-400 dark:hover:text-white font-medium transition-colors">
+                        <Link href="/words" className="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-500 hover:bg-gray-50 hover:text-gray-900 dark:hover:bg-[#1e293b] dark:text-gray-400 dark:hover:text-white font-medium transition-colors">
                             <CardsIcon />
                             Words
                         </Link>
