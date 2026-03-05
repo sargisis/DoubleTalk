@@ -17,11 +17,11 @@ func CalculateNextReview(word *models.Word, q int) {
 	}
 
 	if q < 3 {
-		// If score is less than 3, reset interval to 1 day
+		// If score is less than 3, reset repetitions and interval
+		word.Repetitions = 0
 		word.Interval = 1
 	} else {
 		// Update Ease Factor (EF)
-		// EF = EF + (0.1 - (5 - q) * (0.08 + (5 - q) * 0.02))
 		qFloat := float64(q)
 		newEF := word.DifficultyFactor + (0.1 - (5.0-qFloat)*(0.08+(5.0-qFloat)*0.02))
 
@@ -31,14 +31,16 @@ func CalculateNextReview(word *models.Word, q int) {
 		}
 		word.DifficultyFactor = newEF
 
-		// Calculate Next Interval
-		if word.Interval == 0 {
+		// Calculate Next Interval based on Repetitions
+		if word.Repetitions == 0 {
 			word.Interval = 1
-		} else if word.Interval == 1 {
+		} else if word.Repetitions == 1 {
 			word.Interval = 6
 		} else {
 			word.Interval = int(float64(word.Interval) * newEF)
 		}
+
+		word.Repetitions++
 	}
 
 	// Update NextReviewDate using new interval

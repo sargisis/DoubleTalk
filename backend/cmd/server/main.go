@@ -46,11 +46,13 @@ func main() {
 		{
 			protected.GET("/user/me", handlers.GetProfile)
 			protected.PUT("/user/me", handlers.UpdateProfile)
+			protected.POST("/user/visit", handlers.UpdateVisit)
 
 			protected.POST("/words", handlers.AddWord)
 			protected.GET("/words", handlers.GetWords)
 			protected.DELETE("/words/:id", handlers.DeleteWord)
 
+			protected.GET("/cards/due-count", handlers.GetDueCardsCount)
 			protected.GET("/cards/next", handlers.GetNextCards)
 			protected.POST("/cards/:id/review", handlers.ReviewCard)
 
