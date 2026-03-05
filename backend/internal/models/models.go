@@ -41,3 +41,17 @@ type LessonProgress struct {
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
+
+type Homework struct {
+	ID             uint      `json:"id" gorm:"primaryKey"`
+	LessonID       int       `json:"lesson_id" gorm:"uniqueIndex"`
+	Title          string    `json:"title"`
+	Description    string    `json:"description"`
+	SentencePrefix string    `json:"sentencePrefix"`
+	SentenceSuffix string    `json:"sentenceSuffix"`
+	Translation    string    `json:"translation"`
+	CorrectWord    string    `json:"correctWord"`
+	WordBank       string    `json:"wordBank"` // JSON string representation
+	CreatedAt      time.Time `json:"created_at"`
+	UpdatedAt      time.Time `json:"updated_at"`
+}
