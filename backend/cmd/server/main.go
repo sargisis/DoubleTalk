@@ -59,6 +59,7 @@ func main() {
 
 			protected.GET("/course/progress", handlers.GetCourseProgress)
 			protected.POST("/course/status", handlers.UpdateLessonStatus)
+			protected.GET("/homework/:id", handlers.GetHomework)
 		}
 	}
 

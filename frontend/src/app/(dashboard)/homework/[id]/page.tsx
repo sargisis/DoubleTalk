@@ -5,37 +5,59 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { playSound } from '@/lib/audio';
 
-// Mock data for homework questions
-const MockHomeworkData = {
-    103: {
-        title: "Saying Hello",
-        description: "Complete the phrase to greet someone politely.",
-        sentencePrefix: "Dzień ",
-        sentenceSuffix: "!",
-        translation: "(Good morning!)",
-        correctWord: "dobry",
-        wordBank: ["dobrze", "dobry", "dziękuję", "do widzenia"],
-    },
-    202: {
-        title: "Manners Quiz",
-        description: "Select the missing word.",
-        sentencePrefix: "Proszę i ",
-        sentenceSuffix: ".",
-        translation: "(Please and thank you.)",
-        correctWord: "dziękuję",
-        wordBank: ["przepraszam", "tak", "nie", "dziękuję"],
-    }
-};
+interface HomeworkData {
+    title: string;
+    description: string;
+    sentencePrefix: string;
+    sentenceSuffix: string;
+    translation: string;
+    correctWord: string;
+    wordBank: string[];
+}
 
 export default function HomeworkPage({ params }: { params: Promise<{ id: string }> }) {
     const router = useRouter();
     const resolvedParams = React.use(params);
     const lessonId = parseInt(resolvedParams.id) || 103;
-    const data = MockHomeworkData[lessonId as keyof typeof MockHomeworkData] || null;
+
+    const [data, setData] = useState<HomeworkData | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
+
+    React.useEffect(() => {
+        const fetchHomework = async () => {
+            setIsLoading(true);
+            try {
+                const { getCookie } = require('cookies-next');
+                const token = getCookie('token');
+
+                const res = await fetch(`http://localhost:8080/api/v1/homework/${lessonId}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (res.ok) {
+                    const hwData = await res.json();
+                    setData(hwData);
+                }
+            } catch (err) {
+                console.error("Failed to fetch homework", err);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchHomework();
+    }, [lessonId]);
 
     const [selectedWord, setSelectedWord] = useState<string | null>(null);
     const [resultStatus, setResultStatus] = useState<'idle' | 'success' | 'fail'>('idle');
     const [phase, setPhase] = useState<'working' | 'done'>('working');
+
+    if (isLoading) {
+        return (
+            <div className="flex justify-center items-center h-[50vh]">
+                <div className="w-12 h-12 border-4 border-gray-200 border-t-[#AF2024] rounded-full animate-spin"></div>
+            </div>
+        );
+    }
 
     if (!data) {
         return (
