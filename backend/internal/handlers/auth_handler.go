@@ -5,6 +5,7 @@ import (
 
 	"doubletalk-backend/internal/database"
 	"doubletalk-backend/internal/models"
+	"doubletalk-backend/internal/services"
 	"doubletalk-backend/internal/utils"
 
 	"github.com/gin-gonic/gin"
@@ -208,5 +209,21 @@ func UpdateProfile(c *gin.Context) {
 		"avatar_url":          user.AvatarURL,
 		"dark_mode":           user.DarkMode,
 		"email_notifications": user.EmailNotifications,
+	})
+}
+
+// UpdateVisit triggers the streak computation logic on user visit
+func UpdateVisit(c *gin.Context) {
+	userID, exists := c.Get("userID")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized user token"})
+		return
+	}
+
+	// This function handles resetting or updating streak if they are active on a new day
+	services.UpdateStreak(userID.(uint))
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Visit marked successfully",
 	})
 }

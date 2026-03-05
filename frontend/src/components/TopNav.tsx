@@ -11,11 +11,18 @@ export function TopNav() {
     const [stats, setStats] = useState<TopNavProps>({ streak: 0, xp_points: 0 });
 
     useEffect(() => {
-        const fetchStats = async () => {
+        const updateAndFetchStats = async () => {
             const token = getCookie('token');
             if (!token) return;
 
             try {
+                // Background POST to register a streak visit today
+                await fetch('http://localhost:8080/api/v1/user/visit', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                // Fetch resulting stats
                 const res = await fetch('http://localhost:8080/api/v1/user/me', {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
@@ -30,7 +37,7 @@ export function TopNav() {
                 console.error("Failed to load top nav stats", err);
             }
         };
-        fetchStats();
+        updateAndFetchStats();
     }, []);
 
     return (
