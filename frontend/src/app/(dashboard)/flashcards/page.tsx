@@ -27,6 +27,7 @@ export default function FlashcardsPage() {
     const [quizOptions, setQuizOptions] = useState<string[]>([]);
     const [selectedOption, setSelectedOption] = useState<string | null>(null);
     const [quizResult, setQuizResult] = useState<'idle' | 'success' | 'fail'>('idle');
+    const [hasFailedThisCard, setHasFailedThisCard] = useState(false);
 
     useEffect(() => {
         fetchCards();
@@ -47,6 +48,7 @@ export default function FlashcardsPage() {
                     setCards(sessionCards);
                     setPhase('intro');
                     setCurrentIndex(0);
+                    setHasFailedThisCard(false);
                 } else {
                     setPhase('empty');
                 }
@@ -82,6 +84,7 @@ export default function FlashcardsPage() {
     const startQuiz = () => {
         setPhase('quiz');
         setCurrentIndex(0);
+        setHasFailedThisCard(false);
         generateOptions(0);
     };
 
@@ -106,29 +109,47 @@ export default function FlashcardsPage() {
     const handleCheckQuiz = async () => {
         if (!selectedOption) return;
         const currentCard = cards[currentIndex];
+        const token = getCookie('token');
 
         if (selectedOption === currentCard.translation) {
             setQuizResult('success');
             playSound('success');
 
-            // Optionally call backend review endpoint to mark as learned
-            try {
-                const token = getCookie('token');
-                await fetch(`http://localhost:8080/api/v1/cards/${currentCard.id}/review`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({ score: 4 }) // Good score
-                });
-            } catch (err) {
-                console.error("Failed to mark card reviewed", err);
+            // Mark as learned ONLY if it wasn't failed already
+            if (!hasFailedThisCard) {
+                try {
+                    await fetch(`http://localhost:8080/api/v1/cards/${currentCard.id}/review`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({ score: 4 }) // Good score
+                    });
+                } catch (err) {
+                    console.error("Failed to mark card reviewed", err);
+                }
             }
 
         } else {
             setQuizResult('fail');
             playSound('fail');
+
+            if (!hasFailedThisCard) {
+                setHasFailedThisCard(true);
+                try {
+                    await fetch(`http://localhost:8080/api/v1/cards/${currentCard.id}/review`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({ score: 1 }) // Fail score
+                    });
+                } catch (err) {
+                    console.error("Failed to mark card reviewed", err);
+                }
+            }
         }
     };
 
