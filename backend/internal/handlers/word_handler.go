@@ -103,6 +103,18 @@ func GetNextCards(c *gin.Context) {
 	c.JSON(http.StatusOK, cards)
 }
 
+func GetDueCardsCount(c *gin.Context) {
+	userID, _ := c.Get("userID")
+
+	var count int64
+	if err := database.DB.Model(&models.Word{}).Where("user_id = ? AND next_review_date <= ?", userID.(uint), time.Now()).Count(&count).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch due cards count"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"count": count})
+}
+
 type ReviewRequest struct {
 	Score int `json:"score" binding:"required,min=0,max=5"`
 }

@@ -28,6 +28,7 @@ type Word struct {
 	LanguageCode     string    `json:"language_code"` // e.g. EN, PL, KA, HY
 	DifficultyFactor float64   `json:"difficulty_factor" gorm:"default:2.5"`
 	Interval         int       `json:"interval" gorm:"default:0"` // in days
+	Repetitions      int       `json:"repetitions" gorm:"default:0"`
 	NextReviewDate   time.Time `json:"next_review_date"`
 	CreatedAt        time.Time `json:"created_at"`
 	UpdatedAt        time.Time `json:"updated_at"`
